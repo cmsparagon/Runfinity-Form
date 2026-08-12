@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Cek Status Sumbang Saran</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    select,
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: Arial, sans-serif;
+    }
+
+    .card {
+      background: white;
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .approved {
+      color: #16803c;
+    }
+
+    .not-approved {
+      color: #c62828;
+    }
+
+    .pending {
+      color: #d68910;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .report-button {
+      background: #111;
+      color: white;
+    }
+
+    .submit-button {
+      background: #16803c;
+      color: white;
+      margin-top: 25px;
+    }
+
+    .back-button {
+      background: #ddd;
+      color: #222;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .info-box {
+      background: #f0f7f2;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #777;
+      margin-top: 20px;
+    }
+
+    .success {
+      background: #e8f5e9;
+      color: #166534;
+      padding: 18px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+      z-index: 999;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-box {
+      background: white;
+      width: 100%;
+      max-width: 400px;
+
+      padding: 30px 25px;
+      border-radius: 16px;
+
+      text-align: center;
+
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .success-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .modal-box h2 {
+      margin: 5px 0 10px;
+    }
+
+    .modal-box p {
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .confirm-detail {
+      text-align: left;
+      background: #f5f6f8;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      line-height: 1.7;
+    }
+
+    .confirm-detail strong {
+      display: inline-block;
+    }
+
+    .confirm-email {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <!-- ========================= -->
+  <!-- STATUS PAGE -->
+  <!-- ========================= -->
+
+  <div id="statusPage">
+
+    <h1>Cek Status Sumbang Saran</h1>
+
+    <div class="subtitle">
+      Pilih area dan nama kamu untuk melihat status Sumbang Saran.
+    </div>
+
+
+    <label>Pilih Area</label>
+
+    <select id="areaSelect" onchange="loadNames()">
+
+      <option value="">
+        -- Pilih Area --
+      </option>
+
+    </select>
+
+
+    <label>Pilih Nama</label>
+
+    <select id="nameSelect" onchange="showSS()">
+
+      <option value="">
+        -- Pilih Nama --
+      </option>
+
+    </select>
+
+
+    <div id="result"></div>
+
+  </div>
+
+
+
+  <!-- ========================= -->
+  <!-- REPORT FORM -->
+  <!-- ========================= -->
+
+  <div id="reportPage" class="hidden">
+
+    <h1>Laporan Implementasi</h1>
+
+    <div class="subtitle">
+      Lengkapi laporan implementasi Sumbang Saran kamu.
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="info-box">
+
+      <div>
+        <strong>Area:</strong>
+        <span id="reportArea"></span>
+      </div>
+
+      <div style="margin-top:8px;">
+        <strong>Nama:</strong>
+        <span id="reportName"></span>
+      </div>
+
+      <div style="margin-top:8px;">
+        <strong>Judul SS:</strong>
+        <span id="reportTitle"></span>
+      </div>
+
+    </div>
+
+
+
+    <!-- BEFORE -->
+
+    <label>
+      Foto Kondisi Sebelum Improvement
+    </label>
+
+    <input
+      type="file"
+      id="beforePhoto"
+      accept="image/*"
+    >
+
+
+    <label>
+      Penjelasan Kondisi Sebelum Improvement
+    </label>
+
+    <textarea
+      id="beforeDescription"
+      placeholder="Jelaskan kondisi sebelum improvement dilakukan..."
+    ></textarea>
+
+
+
+    <!-- AFTER -->
+
+    <label>
+      Foto Kondisi Setelah Improvement
+    </label>
+
+    <input
+      type="file"
+      id="afterPhoto"
+      accept="image/*"
+    >
+
+
+    <label>
+      Penjelasan Kondisi Setelah Improvement
+    </label>
+
+    <textarea
+      id="afterDescription"
+      placeholder="Jelaskan kondisi setelah improvement dilakukan..."
+    ></textarea>
+
+
+
+    <!-- BENEFIT -->
+
+    <label>
+      Manfaat Improvement
+    </label>
+
+    <textarea
+      id="benefit"
+      placeholder="Jelaskan manfaat atau dampak dari improvement..."
+    ></textarea>
+
+
+    <button
+      class="submit-button"
+      onclick="submitReport()"
+    >
+      Submit Laporan
+    </button>
+
+
+    <button
+      class="back-button"
+      onclick="backToStatus()"
+    >
+      ← Kembali
+    </button>
+
+
+    <div id="submitMessage"></div>
+
+  </div>
+
+</div>
+
+<!-- CONFIRM SUBMIT POPUP -->
+<div id="confirmModal" class="modal hidden">
+
+  <div class="modal-box">
+
+    <div class="success-icon">
+      📄
+    </div>
+
+    <h2>Konfirmasi Pengiriman</h2>
+
+    <p>
+      Apakah kamu yakin ingin mengirim laporan implementasi berikut?
+    </p>
+
+    <div class="confirm-detail">
+
+      <div>
+        <strong>Nama:</strong>
+        <span id="confirmName"></span>
+      </div>
+
+      <div>
+        <strong>Lokasi:</strong>
+        <span id="confirmArea"></span>
+      </div>
+
+      <div>
+        <strong>Judul SS:</strong>
+        <span id="confirmTitle"></span>
+      </div>
+
+    </div>
+
+    <label style="text-align:left;">
+      Email untuk menerima salinan laporan
+    </label>
+
+    <input
+      type="email"
+      id="reportEmail"
+      class="confirm-email"
+      placeholder="contoh@email.com"
+    >
+
+    <button
+      class="submit-button"
+      onclick="confirmSubmitReport()"
+    >
+      ✓ Ya, Kirim Laporan
+    </button>
+
+    <button
+      class="back-button"
+      onclick="closeConfirmModal()"
+    >
+      ← Kembali
+    </button>
+
+  </div>
+
+</div>
+
+<!-- SUCCESS POPUP -->
+  <div id="successModal" class="modal hidden">
+
+    <div class="modal-box">
+
+      <div class="success-icon">
+        🎉
+      </div>
+
+      <h2>Laporan Berhasil!</h2>
+
+      <p>
+        Laporan implementasi kamu berhasil dikirim.
+      </p>
+
+      <button
+        class="submit-button"
+        onclick="closeSuccessModal()"
+      >
+        OK
+      </button>
+
+    </div>
+
+  </div>
+
+<!-- VIEW REPORT -->
+<div id="viewReportModal" class="modal hidden">
+
+  <div class="modal-box">
+
+    <div class="success-icon">
+      📋
+    </div>
+
+    <h2>Laporan Implementasi</h2>
+
+    <div id="reportContent"></div>
+
+    <button
+      class="back-button"
+      onclick="closeReportModal()"
+    >
+      Tutup
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+  let allData = [];
+
+  let allReports = [];
+
+  let selectedReport = null;
+
+  const API_URL =
+  'https://script.google.com/macros/s/AKfycbzu0PZCbgfTXJEDjMV_VXQ-dIBW2GkFC67shOJ3plF6KY0Yx6c8in4oENdh0r0Q_Zer/exec';
+
+  async function callApi(action, payload = {}) {
+
+    const response = await fetch(
+      API_URL,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+
+        body: JSON.stringify({
+          action: action,
+          ...payload
+        })
+      }
+    );
+
+    const result =
+      await response.json();
+
+    if (!result.success) {
+
+      throw new Error(
+        result.message ||
+        'Terjadi kesalahan.'
+      );
+
+    }
+
+    return result.data;
+
+  }
+
+  let browserId = localStorage.getItem('ssBrowserId');
+
+  if (!browserId) {
+
+    browserId =
+      crypto.randomUUID();
+
+    localStorage.setItem(
+      'ssBrowserId',
+      browserId
+    );
+
+  }
+
+
+  // ==========================================
+  // LOAD DATA FROM GOOGLE SHEETS
+  // ==========================================
+
+  // ==========================================
+  // LOAD DATA FROM GOOGLE SHEETS
+  // ==========================================
+
+  callApi('getData')
+    .then(function(data) {
+
+      allData = Array.isArray(data)
+        ? data
+        : [];
+
+      loadAreas();
+
+    })
+    .catch(function(error) {
+
+      alert(
+        'Gagal mengambil data SS: ' +
+        error.message
+      );
+
+    });
+
+
+  // ==========================================
+  // LOAD DATA LAPORAN
+  // ==========================================
+
+  callApi('getReports')
+    .then(function(data) {
+
+      console.log('DATA LAPORAN:', data);
+
+      allReports = Array.isArray(data)
+        ? data
+        : [];
+
+    })
+    .catch(function(error) {
+
+      console.log(
+        'Gagal mengambil data laporan:',
+        error.message
+      );
+
+      allReports = [];
+
+    });
+
+  // ==========================================
+  // LOAD AREA
+  // ==========================================
+
+  function loadAreas() {
+
+    const areaSelect =
+      document.getElementById('areaSelect');
+
+
+    const areas = [
+      ...new Set(
+        allData.map(row => row[0])
+      )
+    ];
+
+
+    areas.forEach(area => {
+
+      const option =
+        document.createElement('option');
+
+      option.value = area;
+
+      option.textContent = area;
+
+      areaSelect.appendChild(option);
+
+    });
+
+  }
+
+
+
+  // ==========================================
+  // LOAD NAMES
+  // ==========================================
+
+  function loadNames() {
+
+    const selectedArea =
+      document.getElementById('areaSelect').value;
+
+
+    const nameSelect =
+      document.getElementById('nameSelect');
+
+
+    nameSelect.innerHTML =
+      '<option value="">-- Pilih Nama --</option>';
+
+
+    document.getElementById('result').innerHTML = '';
+
+
+    if (!selectedArea) return;
+
+
+    const names = [
+      ...new Set(
+
+        allData
+          .filter(row =>
+            String(row[0]).trim() === String(selectedArea).trim()
+          )
+          .map(row => row[1])
+
+      )
+    ];
+
+
+    names.forEach(name => {
+
+      const option =
+        document.createElement('option');
+
+      option.value = name;
+
+      option.textContent = name;
+
+      nameSelect.appendChild(option);
+
+    });
+
+  }
+
+
+
+  // ==========================================
+  // SHOW SS
+  // ==========================================
+
+  function showSS() {
+
+    const area =
+      document.getElementById('areaSelect').value;
+
+
+    const name =
+      document.getElementById('nameSelect').value;
+
+
+    const result =
+      document.getElementById('result');
+
+
+    result.innerHTML = '';
+
+
+    if (!name) return;
+
+
+    const submissions =
+
+      allData.filter(row =>
+
+      String(row[0]).trim() === String(area).trim() &&
+      String(row[1]).trim() === String(name).trim()
+
+    );
+
+
+    submissions.forEach(row => {
+
+      const title = row[2];
+
+      const status = row[3];
+
+
+      const card =
+        document.createElement('div');
+
+      card.className = 'card';
+
+
+      let statusClass = '';
+
+      if (status === 'APPROVED') {
+        statusClass = 'approved';
+      }
+
+      else if (status === 'NOT APPROVED') {
+        statusClass = 'not-approved';
+      }
+
+      else {
+        statusClass = 'pending';
+      }
+
+
+      card.innerHTML = `
+
+        <div class="title">
+          ${title}
+        </div>
+
+        <div class="status ${statusClass}">
+          ${status}
+        </div>
+
+      `;
+
+
+      // ===============================
+      // APPROVED
+      // ===============================
+
+      if (status === 'APPROVED') {
+
+        console.log('Browser ID sekarang:', browserId);
+        console.log('All Reports:', allReports);
+
+        // Cek apakah SS ini sudah punya laporan
+        const existingReport =
+          Array.isArray(allReports)
+            ? allReports.find(report =>
+
+                String(report[0]).trim() ===
+                  String(area).trim() &&
+
+                String(report[1]).trim() ===
+                  String(name).trim() &&
+
+                String(report[2]).trim() ===
+                  String(title).trim()
+
+              )
+            : null;
+
+        console.log('Existing Report:', existingReport);
+
+
+        const button =
+          document.createElement('button');
+
+
+        if (existingReport) {
+
+            const submitted =
+              document.createElement('div');
+
+            submitted.style.color = '#16803c';
+            submitted.style.fontWeight = 'bold';
+            submitted.style.marginBottom = '8px';
+
+            submitted.textContent =
+              '✓ Laporan sudah dikirim';
+
+            card.appendChild(submitted);
+
+
+            button.className =
+              'report-button';
+
+
+            const reportBrowserId =
+              existingReport[9];
+
+
+            const isOwner =
+              reportBrowserId === browserId;
+
+
+            if (isOwner) {
+
+              button.textContent =
+                '👀 Lihat Laporan';
+
+              button.onclick = function() {
+
+                showReport(
+                  area,
+                  name,
+                  title
+                );
+
+              };
+
+            } else {
+
+              button.textContent =
+                '🔒 Laporan sudah dikirim';
+
+              button.disabled = true;
+
+              button.style.opacity = '0.6';
+
+              button.style.cursor = 'not-allowed';
+
+            }
+
+          } else {
+
+          // ==================================
+          // BELUM ADA LAPORAN
+          // ==================================
+
+          button.className =
+            'report-button';
+
+          button.textContent =
+            '📝 Isi Laporan Implementasi';
+
+
+          button.onclick = function() {
+
+            openReportForm(
+              area,
+              name,
+              title
+            );
+
+          };
+
+        }
+
+
+        card.appendChild(button);
+
+      }
+
+
+      result.appendChild(card);
+
+    });
+
+  }
+
+
+
+  // ==========================================
+  // OPEN REPORT FORM
+  // ==========================================
+
+  function openReportForm(
+    area,
+    name,
+    title
+  ) {
+
+    selectedReport = {
+
+      area: area,
+
+      name: name,
+
+      title: title
+
+    };
+
+
+    document.getElementById(
+      'reportArea'
+    ).textContent = area;
+
+
+    document.getElementById(
+      'reportName'
+    ).textContent = name;
+
+
+    document.getElementById(
+      'reportTitle'
+    ).textContent = title;
+
+
+    document.getElementById(
+      'statusPage'
+    ).classList.add('hidden');
+
+
+    document.getElementById(
+      'reportPage'
+    ).classList.remove('hidden');
+
+  }
+
+
+
+  // ==========================================
+  // BACK TO STATUS
+  // ==========================================
+
+  function backToStatus() {
+
+    document.getElementById(
+      'reportPage'
+    ).classList.add('hidden');
+
+
+    document.getElementById(
+      'statusPage'
+    ).classList.remove('hidden');
+
+  }
+
+
+
+  // ==========================================
+  // SUBMIT REPORT
+  // ==========================================
+
+  function submitReport() {
+
+    const beforePhoto =
+      document.getElementById('beforePhoto').files[0];
+
+    const afterPhoto =
+      document.getElementById('afterPhoto').files[0];
+
+    const beforeDescription =
+      document.getElementById('beforeDescription')
+        .value.trim();
+
+    const afterDescription =
+      document.getElementById('afterDescription')
+        .value.trim();
+
+    const benefit =
+      document.getElementById('benefit')
+        .value.trim();
+
+
+    // ==========================================
+    // VALIDASI
+    // ==========================================
+
+    if (!beforePhoto) {
+      alert('Mohon upload foto kondisi sebelum improvement.');
+      return;
+    }
+
+    if (!beforeDescription) {
+      alert('Mohon isi penjelasan kondisi sebelum improvement.');
+      return;
+    }
+
+    if (!afterPhoto) {
+      alert('Mohon upload foto kondisi setelah improvement.');
+      return;
+    }
+
+    if (!afterDescription) {
+      alert('Mohon isi penjelasan kondisi setelah improvement.');
+      return;
+    }
+
+    if (!benefit) {
+      alert('Mohon isi manfaat improvement.');
+      return;
+    }
+
+    document.getElementById('confirmName').textContent =
+      selectedReport.name;
+
+    document.getElementById('confirmArea').textContent =
+      selectedReport.area;
+
+    document.getElementById('confirmTitle').textContent =
+      selectedReport.title;
+
+    document.getElementById('confirmModal')
+      .classList.remove('hidden');
+
+    return;
+
+  }
+
+  function confirmSubmitReport() {
+
+    const email = document
+      .getElementById('reportEmail')
+      .value
+      .trim();
+
+    if (!email) {
+      alert('Mohon masukkan alamat email.');
+      return;
+    }
+
+    const beforePhoto =
+      document.getElementById('beforePhoto').files[0];
+
+    const afterPhoto =
+      document.getElementById('afterPhoto').files[0];
+
+    const beforeDescription =
+      document.getElementById('beforeDescription')
+        .value.trim();
+
+    const afterDescription =
+      document.getElementById('afterDescription')
+        .value.trim();
+
+    const benefit =
+      document.getElementById('benefit')
+        .value.trim();
+
+
+    closeConfirmModal();
+
+
+    // ==========================================
+    // LOADING
+    // ==========================================
+
+    const submitButton =
+      document.querySelector('#reportPage .submit-button');
+
+    submitButton.disabled = true;
+
+    submitButton.textContent =
+      'Mengirim laporan...';
+
+
+    // ==========================================
+    // BACA FOTO
+    // ==========================================
+
+    Promise.all([
+
+      readFile(beforePhoto),
+
+      readFile(afterPhoto)
+
+    ])
+    .then(function(files) {
+
+      const report = {
+
+        area: selectedReport.area,
+
+        name: selectedReport.name,
+
+        title: selectedReport.title,
+
+        beforePhoto: files[0],
+
+        beforeDescription: beforeDescription,
+
+        afterPhoto: files[1],
+
+        afterDescription: afterDescription,
+
+        benefit: benefit,
+
+        browserId: browserId,
+
+        email: email
+
+      };
+
+
+      callApi('submitReport', {
+        report: report
+      })
+
+      .then(function(response) {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          'Submit Laporan';
+
+
+        // Refresh data laporan
+        return callApi('getReports');
+
+      })
+
+      .then(function(data) {
+
+        allReports = Array.isArray(data)
+          ? data
+          : [];
+
+        document
+          .getElementById('successModal')
+          .classList.remove('hidden');
+
+      })
+
+      .catch(function(error) {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          'Submit Laporan';
+
+        alert(
+          'Gagal mengirim laporan:\n\n' +
+          error.message
+        );
+
+      });
+
+      });
+
+    .catch(function(error) {
+
+      submitButton.disabled = false;
+
+      submitButton.textContent =
+        'Submit Laporan';
+
+      alert(
+        'Gagal membaca foto:\n\n' +
+        error.message
+      );
+
+    });
+
+  }
+
+  function readFile(file) {
+
+    return new Promise(function(resolve, reject) {
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+
+        const result =
+          event.target.result;
+
+        const base64 =
+          result.split(',')[1];
+
+
+        resolve({
+
+          data: base64,
+
+          mimeType: file.type,
+
+          name: file.name
+
+        });
+
+      };
+
+
+      reader.onerror = function() {
+
+        reject(
+          new Error(
+            'Foto tidak dapat dibaca.'
+          )
+        );
+
+      };
+
+
+      reader.readAsDataURL(file);
+
+    });
+
+  }
+
+  function closeSuccessModal() {
+
+    document
+      .getElementById('successModal')
+      .classList.add('hidden');
+
+    backToStatus();
+
+    showSS();
+
+  }
+
+  function showReport(area, name, title) {
+
+    const report = allReports.find(row =>
+      row[0] === area &&
+      row[1] === name &&
+      row[2] === title
+    );
+
+
+    if (!report) {
+
+      alert(
+        'Laporan tidak ditemukan.'
+      );
+
+      return;
+
+    }
+
+
+    const beforePhoto = report[3];
+    const beforeDescription = report[4];
+
+    const afterPhoto = report[5];
+    const afterDescription = report[6];
+
+    const benefit = report[7];
+
+
+    const content =
+      document.getElementById('reportContent');
+
+
+    content.innerHTML = `
+
+      <div class="info-box">
+
+        <div>
+          <strong>Area:</strong>
+          ${area}
+        </div>
+
+        <div style="margin-top:8px;">
+          <strong>Nama:</strong>
+          ${name}
+        </div>
+
+        <div style="margin-top:8px;">
+          <strong>Judul SS:</strong>
+          ${title}
+        </div>
+
+      </div>
+
+
+      <div style="text-align:left; margin-top:20px;">
+
+        <h3>
+          Kondisi Sebelum Improvement
+        </h3>
+
+        <p>
+          ${beforeDescription}
+        </p>
+
+        <p>
+          <a href="${beforePhoto}" target="_blank">
+            📷 Lihat Foto Sebelum
+          </a>
+        </p>
+
+
+        <h3 style="margin-top:25px;">
+          Kondisi Setelah Improvement
+        </h3>
+
+        <p>
+          ${afterDescription}
+        </p>
+
+        <p>
+          <a href="${afterPhoto}" target="_blank">
+            📷 Lihat Foto Setelah
+          </a>
+        </p>
+
+
+        <h3 style="margin-top:25px;">
+          Manfaat Improvement
+        </h3>
+
+        <p>
+          ${benefit}
+        </p>
+
+      </div>
+
+    `;
+
+
+    document
+      .getElementById('viewReportModal')
+      .classList.remove('hidden');
+
+  }
+
+  function closeReportModal() {
+
+    document
+      .getElementById('viewReportModal')
+      .classList.add('hidden');
+
+  }
+
+  function closeConfirmModal() {
+
+    document
+      .getElementById('confirmModal')
+      .classList.add('hidden');
+
+  }
+
+</script>
+
+</body>
+
+</html>
