@@ -1161,20 +1161,6 @@
 
       })
 
-    .catch(function(error) {
-
-      submitButton.disabled = false;
-
-      submitButton.textContent =
-        'Submit Laporan';
-
-      alert(
-        'Gagal membaca foto:\n\n' +
-        error.message
-      );
-
-    });
-
   }
 
   function readFile(file) {
