@@ -303,10 +303,15 @@
       Foto Kondisi Sebelum Improvement
     </label>
 
-    <input
-      type="file"
-      id="beforePhoto"
-      accept="image/*"
+    <img
+      id="beforePhotoPreview"
+      style="
+        width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 15px;
+      "
     >
 
 
@@ -314,10 +319,16 @@
       Penjelasan Kondisi Sebelum Improvement
     </label>
 
-    <textarea
-      id="beforeDescription"
-      placeholder="Jelaskan kondisi sebelum improvement dilakukan..."
-    ></textarea>
+    <div
+      id="beforeDescriptionPreview"
+      style="
+        padding: 12px;
+        background: #f5f5f5;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        white-space: pre-wrap;
+      "
+    ></div>
 
 
 
@@ -882,7 +893,9 @@
             openReportForm(
               area,
               name,
-              title
+              title,
+              row[5],
+              row[6]
             );
 
           };
@@ -910,7 +923,9 @@
   function openReportForm(
     area,
     name,
-    title
+    title,
+    beforePhoto,
+    beforeDescription
   ) {
 
     selectedReport = {
@@ -919,7 +934,12 @@
 
       name: name,
 
-      title: title
+      title: title,
+
+      beforePhoto: beforePhoto,
+
+      beforeDescription:
+        beforeDescription
 
     };
 
@@ -939,6 +959,28 @@
     ).textContent = title;
 
 
+    const photoPreview =
+      document.getElementById(
+        'beforePhotoPreview'
+      );
+
+
+    photoPreview.removeAttribute('src');
+
+    photoPreview.alt =
+      'Memuat foto kondisi sebelum improvement...';
+
+
+    const descriptionPreview =
+      document.getElementById(
+        'beforeDescriptionPreview'
+      );
+
+
+    descriptionPreview.textContent =
+      beforeDescription || '-';
+
+
     document.getElementById(
       'statusPage'
     ).classList.add('hidden');
@@ -947,6 +989,43 @@
     document.getElementById(
       'reportPage'
     ).classList.remove('hidden');
+
+
+    // ==========================================
+    // AMBIL FOTO BEFORE DARI GOOGLE DRIVE
+    // ==========================================
+
+    callApi(
+      'getDriveImage',
+      {
+        url: beforePhoto
+      }
+    )
+
+    .then(function(image) {
+
+      photoPreview.src =
+        'data:' +
+        image.mimeType +
+        ';base64,' +
+        image.data;
+
+      photoPreview.alt =
+        'Foto kondisi sebelum improvement';
+
+    })
+
+    .catch(function(error) {
+
+      console.log(
+        'Gagal mengambil foto Before:',
+        error.message
+      );
+
+      photoPreview.alt =
+        'Foto Before tidak dapat ditampilkan.';
+
+    });
 
   }
 
@@ -977,19 +1056,18 @@
 
   function submitReport() {
 
-    const beforePhoto =
-      document.getElementById('beforePhoto').files[0];
-
     const afterPhoto =
-      document.getElementById('afterPhoto').files[0];
+    document.getElementById('afterPhoto').files[0];
 
-    const beforeDescription =
-      document.getElementById('beforeDescription')
-        .value.trim();
+  const beforePhoto =
+    selectedReport.beforePhoto;
 
-    const afterDescription =
-      document.getElementById('afterDescription')
-        .value.trim();
+  const beforeDescription =
+    selectedReport.beforeDescription || '';
+
+  const afterDescription =
+    document.getElementById('afterDescription')
+      .value.trim();
 
     const benefit =
       document.getElementById('benefit')
@@ -999,16 +1077,6 @@
     // ==========================================
     // VALIDASI
     // ==========================================
-
-    if (!beforePhoto) {
-      alert('Mohon upload foto kondisi sebelum improvement.');
-      return;
-    }
-
-    if (!beforeDescription) {
-      alert('Mohon isi penjelasan kondisi sebelum improvement.');
-      return;
-    }
 
     if (!afterPhoto) {
       alert('Mohon upload foto kondisi setelah improvement.');
@@ -1043,33 +1111,50 @@
 
   function confirmSubmitReport() {
 
-    const email = document
-      .getElementById('reportEmail')
-      .value
-      .trim();
+    const email =
+      document
+        .getElementById('reportEmail')
+        .value
+        .trim();
+
 
     if (!email) {
-      alert('Mohon masukkan alamat email.');
+
+      alert(
+        'Mohon masukkan alamat email.'
+      );
+
       return;
+
     }
 
-    const beforePhoto =
-      document.getElementById('beforePhoto').files[0];
 
     const afterPhoto =
-      document.getElementById('afterPhoto').files[0];
+      document
+        .getElementById('afterPhoto')
+        .files[0];
+
+
+    const beforePhoto =
+      selectedReport.beforePhoto;
+
 
     const beforeDescription =
-      document.getElementById('beforeDescription')
-        .value.trim();
+      selectedReport.beforeDescription || '';
+
 
     const afterDescription =
-      document.getElementById('afterDescription')
-        .value.trim();
+      document
+        .getElementById('afterDescription')
+        .value
+        .trim();
+
 
     const benefit =
-      document.getElementById('benefit')
-        .value.trim();
+      document
+        .getElementById('benefit')
+        .value
+        .trim();
 
 
     closeConfirmModal();
@@ -1080,54 +1165,68 @@
     // ==========================================
 
     const submitButton =
-      document.querySelector('#reportPage .submit-button');
+      document.querySelector(
+        '#reportPage .submit-button'
+      );
+
 
     submitButton.disabled = true;
+
 
     submitButton.textContent =
       'Mengirim laporan...';
 
 
     // ==========================================
-    // BACA FOTO
+    // BACA FOTO AFTER
     // ==========================================
 
-    Promise.all([
+    readFile(afterPhoto)
 
-      readFile(beforePhoto),
+      .then(function(afterFile) {
 
-      readFile(afterPhoto)
+        const report = {
 
-    ])
-    .then(function(files) {
+          area:
+            selectedReport.area,
 
-      const report = {
+          name:
+            selectedReport.name,
 
-        area: selectedReport.area,
+          title:
+            selectedReport.title,
 
-        name: selectedReport.name,
+          beforePhoto:
+            beforePhoto,
 
-        title: selectedReport.title,
+          beforeDescription:
+            beforeDescription,
 
-        beforePhoto: files[0],
+          afterPhoto:
+            afterFile,
 
-        beforeDescription: beforeDescription,
+          afterDescription:
+            afterDescription,
 
-        afterPhoto: files[1],
+          benefit:
+            benefit,
 
-        afterDescription: afterDescription,
+          browserId:
+            browserId,
 
-        benefit: benefit,
+          email:
+            email
 
-        browserId: browserId,
-
-        email: email
-
-      };
+        };
 
 
-      callApi('submitReport', {
-        report: report
+        return callApi(
+          'submitReport',
+          {
+            report: report
+          }
+        );
+
       })
 
       .then(function(response) {
@@ -1138,20 +1237,26 @@
           'Submit Laporan';
 
 
-        // Refresh data laporan
-        return callApi('getReports');
+        return callApi(
+          'getReports'
+        );
 
       })
 
       .then(function(data) {
 
-        allReports = Array.isArray(data)
-          ? data
-          : [];
+        allReports =
+          Array.isArray(data)
+            ? data
+            : [];
+
 
         document
-          .getElementById('successModal')
-          .classList.remove('hidden');
+          .getElementById(
+            'successModal'
+          )
+          .classList
+          .remove('hidden');
 
       })
 
@@ -1162,14 +1267,13 @@
         submitButton.textContent =
           'Submit Laporan';
 
+
         alert(
           'Gagal mengirim laporan:\n\n' +
           error.message
         );
 
-      })
-
-    });
+      });
 
   }
 
