@@ -729,6 +729,8 @@
 
       const status = row[3];
 
+      const notes = row[4];
+
 
       const card =
         document.createElement('div');
@@ -756,11 +758,21 @@
         <div class="title">
           ${title}
         </div>
-
+      
         <div class="status ${statusClass}">
           ${status}
         </div>
-
+      
+        ${
+          notes
+            ? `
+              <div class="notes">
+                <strong>Notes:</strong> ${notes}
+              </div>
+            `
+            : ''
+        }
+      
       `;
 
 
